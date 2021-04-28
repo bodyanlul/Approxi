@@ -22,9 +22,12 @@ namespace vchmat3
             chart1.Series.Add("Точки");
             chart1.Series.Add("Точное решение");
         }
-        int[] x;
-        int[] y;
+        public double[] xc=new double[5];
+        public double[] yc=new double[5];
+
         int n;
+        string path;
+        
         TextBox[] X = new TextBox[7];  //массив ячеек x(i)
         TextBox[] F = new TextBox[7];  //массив ячеек f(i)
         double step = 1;
@@ -40,6 +43,34 @@ namespace vchmat3
             {
                 x[i] = new double();
                 x[i] = double.Parse(box[i].Text);
+            }
+            return x;
+        }
+
+        private double[] ArrayX(int n, IList<string> stringlist)
+        {
+            double[] x = new double[n];
+
+            //заполняем массив x, f из таблицы
+            for (int i = 0; i < stringlist.Count; i++)
+            {
+                var array = stringlist[i].Split(';');
+                x[i] = new double();
+                x[i] = double.Parse(array[0]);
+            }
+            return x;
+        }
+
+        private double[] ArrayY(int n, IList<string> stringlist)
+        {
+            double[] x = new double[n];
+
+            //заполняем массив x, f из таблицы
+            for (int i = 0; i < stringlist.Count; i++)
+            {
+                var array = stringlist[i].Split(';');
+                x[i] = new double();
+                x[i] = double.Parse(array[1]);
             }
             return x;
         }
@@ -84,6 +115,10 @@ namespace vchmat3
             {
                 MessageBox.Show("Невозможно построить график. Введите n от 1 до 7.");
                 return;
+            }
+            else if(int.Parse(textBox5.Text)==0)
+            {
+                path = GetPath();
             }
             X[0] = textBox2;
             X[1] = textBox3;
@@ -193,7 +228,7 @@ namespace vchmat3
             chart1.Series[0].Points.DataBindXY(x, y);
 
             chart1.Series[1].BorderWidth = 2;
-            for (int i = 0; i < int.Parse(textBox5.Text); i++)
+            for (int i = 0; i < 5/*int.Parse(textBox5.Text)*/; i++)
             {
                 chart1.Series[1].ChartType = SeriesChartType.Point;
                 chart1.Series[1]["PixelPointWidth"] = "10";
@@ -220,22 +255,27 @@ namespace vchmat3
         //метод наименших квадратов
         private void button2_Click(object sender, EventArgs e)
         {
-            if (!checkTable())
-            {
-                cleaning(n);
-                return;
-            }
-            else
-                 if (int.Parse(textBox16.Text) == 0)
-            {
-                MessageBox.Show("Невозможно построить график. Степень многочлена не должна равняться 0.");
-                cleaning(n);
-                return;
-            }
+            //if (!checkTable())
+            //{
+            //    cleaning(n);
+            //    return;
+            //}
+            //else
+            //     if (int.Parse(textBox16.Text) == 0)
+            //{
+            //    MessageBox.Show("Невозможно построить график. Степень многочлена не должна равняться 0.");
+            //    cleaning(n);
+            //    return;
+            //}
 
             //заполняем массивы из текстбоксов
-            double[] x = array(X, n);
-            double[] f = array(F, n);
+            //double[] x = array(X, n);
+            //double[] f = array(F, n);
+            path = GetPath();
+            double[] x = ArrayX(5, File.ReadAllLines(path, Encoding.GetEncoding("windows-1251")));
+            double[] f = ArrayY(5, File.ReadAllLines(path, Encoding.GetEncoding("windows-1251")));
+            n = 5;
+        
 
             int k = int.Parse(textBox16.Text); //степень многочлена
             double[] a = new double[k + 1];
@@ -421,21 +461,20 @@ namespace vchmat3
 
         void ParsePointsFromList(IList<string> stringlist)
         {
-            for (int i = 0; i < stringlist.Count; i++) 
+            for (int i = 0; i < stringlist.Count; i++)
             {
-                //x[i] = int.Parse(stringlist[i]);
-                y[i] = int.Parse(stringlist[i].Split(new char[1] { ';' }, StringSplitOptions.RemoveEmptyEntries)[1]);
+                var array = stringlist[i].Split(';');   
+                xc[i] = int.Parse(array[0]);
+                yc[i] = int.Parse(array[1]);
             }
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
             string path = GetPath();
-            ParsePointsFromList(File.ReadAllLines(path, Encoding.GetEncoding("windows-1251")));
-            for(int i = 0;i<y.Length;i++)
-            {
-                MessageBox.Show(Convert.ToString(y[i]));
-            }
+            ArrayX(5, File.ReadAllLines(path, Encoding.GetEncoding("windows-1251")));
+            ArrayY(5, File.ReadAllLines(path, Encoding.GetEncoding("windows-1251")));
         }
     }
 }
+
